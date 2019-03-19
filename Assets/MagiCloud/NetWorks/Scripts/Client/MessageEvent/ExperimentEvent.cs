@@ -7,13 +7,13 @@ namespace MagiCloud.NetWorks.Client
     public class ExperimentEvent
     {
         ExperimentInfo experimentInfo;
-        IntPtr ptr;
+     
 
         public Text txtExperimentPath;
 
-        public ExperimentEvent()
+        public ExperimentEvent(MessageDistribution messageDistribution)
         {
-            ptr = SystemDllHelper.GetForegroundWindow();
+           
             experimentInfo=new ExperimentInfo()
             {
                 Id=0,
@@ -21,7 +21,7 @@ namespace MagiCloud.NetWorks.Client
                 Name="",
                 IsBack=false
             };
-            MessageDistribution.AddListener((int)EnumCmdID.ExpinfoReq,ExpinfoReqCallback);
+            messageDistribution.AddListener((int)EnumCmdID.ExpinfoReq,ExpinfoReqCallback);
         }
         /// <summary>
         /// 收到请求
@@ -31,7 +31,8 @@ namespace MagiCloud.NetWorks.Client
         {
             data.DeSerialize(experimentInfo,data.bytes);
 
-            SystemDllHelper.ShowWindow(ptr,3);
+          
+
             txtExperimentPath.text = experimentInfo.ExperimentPath;
 
             //打开实验
@@ -51,14 +52,13 @@ namespace MagiCloud.NetWorks.Client
         public void SendExpinfoRes()
         {
 
-            ptr = SystemDllHelper.GetForegroundWindow();
+            //ptr = SystemDllHelper.GetForegroundWindow();
             //最小化自身窗口
-            SystemDllHelper.ShowWindow(ptr,2);
 
             experimentInfo.IsBack=true;
             ProtobufTool tool = new ProtobufTool();
             tool.CreatData((int)EnumCmdID.ExpinfoRes,experimentInfo);
-            NetManager.connetion.BeginSendMessages(tool);
+            ClientNetManager.connetion.BeginSendMessages(tool);
         }
 
     }

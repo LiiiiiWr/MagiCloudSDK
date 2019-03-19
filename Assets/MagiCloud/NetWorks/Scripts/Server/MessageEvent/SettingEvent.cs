@@ -12,7 +12,7 @@ namespace MagiCloud.NetWorks.Server
     {
         public SettingReq setting;
 
-        public SettingEvent()
+        public SettingEvent(MessageDistribution messageDistribution)
         {
             InitSetting();
         }
@@ -51,7 +51,7 @@ namespace MagiCloud.NetWorks.Server
         /// </summary>
         public void SendSetting()
         {
-            NetManager.connetion.BeginSendMessages(GetSystemSetting());
+            ServerNetManager.connetion.BeginSendMessages(GetSystemSetting());
         }
 
         /// <summary>

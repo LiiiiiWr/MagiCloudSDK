@@ -5,7 +5,7 @@ using MagiCloud.NetWorks;
 using MagiCloud.NetWorks.Client;
 using UnityEngine.UI;
 
-public class ClientManager : MonoBehaviour
+public class ClientManager :MonoBehaviour
 {
     private MessageEvent messageEvent;
 
@@ -13,25 +13,25 @@ public class ClientManager : MonoBehaviour
 
     private void Start()
     {
-        messageEvent = new MessageEvent();
+        messageEvent = new MessageEvent(ClientNetManager.connetion.messageDistribution);
         messageEvent.experimentEvent.txtExperimentPath = txtExperimentPath;
-        NetManager.connetion.Connect("127.0.0.1", 8888);
+        ClientNetManager.connetion.Connect("127.0.0.1",8888);
 
     }
 
     public void OnBack()
     {
         messageEvent.experimentEvent.SendExpinfoRes();
-
+        messageEvent.wakeupEvent.SetMinWindow();
     }
 
     private void Update()
     {
-        NetManager.Update();
+        ClientNetManager.Update();
     }
 
     private void OnDestroy()
     {
-        NetManager.connetion.Close();
+        ClientNetManager.connetion.Close();
     }
 }

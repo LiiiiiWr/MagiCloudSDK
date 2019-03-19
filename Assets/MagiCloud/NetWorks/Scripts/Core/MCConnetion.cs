@@ -6,6 +6,7 @@ namespace MagiCloud.NetWorks
 {
     public class MCConnetion
     {
+        public MessageDistribution messageDistribution;
         /// <summary>
         /// 缓冲区最大长度
         /// </summary>
@@ -37,7 +38,7 @@ namespace MagiCloud.NetWorks
         public float lastTickTime = 0;
 
         public float heartBeatTime = 2;
-
+        public HeartBeatInfo hearInfo;
 
         public enum ConnectStatus
         {
@@ -46,6 +47,10 @@ namespace MagiCloud.NetWorks
         }
         public ConnectStatus status = ConnectStatus.None;
 
+        public MCConnetion()
+        {
+            messageDistribution=new MessageDistribution();
+        }
         /// <summary>
         /// 连接
         /// </summary>
@@ -113,9 +118,9 @@ namespace MagiCloud.NetWorks
             //协议解码
             ProtobufTool proto = protocol.Read(readBuffer);
             Debug.Log("收到消息:"+(EnumCmdID)proto.type);
-            lock (MessageDistribution.msgList)
+            lock (messageDistribution.msgList)
             {
-                MessageDistribution.msgList.Add(proto);
+                messageDistribution.msgList.Add(proto);
             }
             //清除已处理的消息
             int count = bufferCount-msgLength-sizeof(Int32)-sizeof(Int32);
@@ -153,24 +158,34 @@ namespace MagiCloud.NetWorks
                 Console.WriteLine(e);
             }
         }
-
+       
         public void Update()
         {
             //消息
-            MessageDistribution.Update();
+            messageDistribution.Update();
             //心跳
             if (status==ConnectStatus.Connected)
             {
                 if (Time.time-lastTickTime>heartBeatTime)
                 {
-                    ProtobufTool proto = NetManager.GetHeatBeatProtocol();
+                    ProtobufTool proto = GetHeatBeatProtocol();
                     //Debug.Log("发送心跳包");
                     BeginSendMessages(proto);
                     lastTickTime=Time.time;
                 }
             }
         }
-
+        public ProtobufTool GetHeatBeatProtocol()
+        {
+            ProtobufTool protocol = new ProtobufTool();
+            hearInfo=new HeartBeatInfo()
+            {
+                Curtime=0,
+                Hostip="127.0.0.1",
+            };
+            protocol.CreatData((int)EnumCmdID.Heartbeat,hearInfo);
+            return protocol;
+        }
 
         /// <summary>
         /// 关闭连接
